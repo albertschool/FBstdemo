@@ -10,14 +10,17 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import static com.videxedge.fbstdemo.FBref.refImages;
+import static com.videxedge.fbstdemo.FBref.refStor;
 
 /**
  * @author		Albert Levy <albert.school2015@gmail.com>
@@ -29,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView iV;
 
+    int Gallery=1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,53 +43,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Uploading selected image file to Firebase Storage
+     * Selecting image file to upload to Firebase Storage
      * <p>
      *
      * @param view
      */
     public void upload(View view) {
-        Intent si = new Intent();
-        si.setType("images/*");
-        si.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(si, "Choose image"), 100);
+        Intent si = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(si, Gallery);
     }
 
+    /**
+     * Uploading selected image file to Firebase Storage
+     * <p>
+     *
+     * @param requestCode   The call sign of the intent that requested the result
+     * @param resultCode    A code that symbols the status of the result of the activity
+     * @param data          The data returned
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 100) {
-                Uri uri = data.getData();
-                if (uri != null)
-                    iV.setImageURI(uri);
-
-/*                final ProgressDialog pd=ProgressDialog.show(this,"Upload image","Uploading...",true);
-
+            if (requestCode == Gallery) {
                 Uri file = data.getData();
-                refImages.child("images/aaa.jpg");
-
-                refImages.putFile(file)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                pd.dismiss();
-                                // Get a URL to the uploaded content
-                                Uri downloadUrl = taskSnapshot.getUploadSessionUri();
-                                Toast.makeText(MainActivity.this, ""+downloadUrl, Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                pd.dismiss();
-                                Toast.makeText(MainActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                                // Handle unsuccessful uploads
-                                // ...
-                            }
-                        });
-*/
+                if (file != null) {
+                    final ProgressDialog pd=ProgressDialog.show(this,"Upload image","Uploading...",true);
+                    StorageReference refImg = refImages.child("aaa.jpg");
+                    refImg.putFile(file)
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this, "Image Uploaded", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this, "Upload failed", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                } else {
+                    Toast.makeText(this, "No Image was selected", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -112,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
                 // ...
             }
         });
+                                // Get a URL to the uploaded content
+                                Uri downloadUrl = taskSnapshot.get
+                                iV.setImageURI(downloadUrl);
 */
     }
 }

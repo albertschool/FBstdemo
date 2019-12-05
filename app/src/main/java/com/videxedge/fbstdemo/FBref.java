@@ -5,5 +5,6 @@ import com.google.firebase.storage.StorageReference;
 
 public class FBref {
     public static FirebaseStorage FBST = FirebaseStorage.getInstance();
-    public static StorageReference refImages=FBST.getReference("Images");
+    public static StorageReference refStor=FBST.getReference();
+    public static StorageReference refImages=refStor.child("Images");
 }
